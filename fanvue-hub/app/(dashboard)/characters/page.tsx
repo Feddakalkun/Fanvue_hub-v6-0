@@ -174,7 +174,24 @@ export default function CharactersPage() {
                                 <label style={{ display: 'block', fontSize: '12px', marginBottom: '8px', color: '#aaa' }}>LoRA Model (Z-Image)</label>
                                 <select
                                     value={selectedLora}
-                                    onChange={e => setSelectedLora(e.target.value)}
+                                    onChange={async (e) => {
+                                        const loraPath = e.target.value;
+                                        setSelectedLora(loraPath);
+
+                                        // Auto-fill Bio if description.txt exists
+                                        if (loraPath) {
+                                            try {
+                                                const res = await fetch(`/api/loras/description?path=${encodeURIComponent(loraPath)}`);
+                                                const data = await res.json();
+                                                if (data.description) {
+                                                    setNewBio(data.description);
+                                                    console.log('[UI] Auto-filled Bio from description.txt');
+                                                }
+                                            } catch (error) {
+                                                console.error('[UI] Failed to fetch description:', error);
+                                            }
+                                        }
+                                    }}
                                     style={{ width: '100%', padding: '12px', background: 'black', border: '1px solid #333', color: 'white', borderRadius: '8px' }}
                                 >
                                     <option value="">-- Select LoRA --</option>
