@@ -49,7 +49,15 @@ function Download-File {
     if (-not (Test-Path $Dest)) {
         Write-Log "Downloading $(Split-Path $Dest -Leaf)..."
         try {
-            Invoke-WebRequest -Uri $Url -OutFile $Dest -UseBasicParsing
+            # Use BITS for faster downloads (10-20x faster than Invoke-WebRequest)
+            Import-Module BitsTransfer -ErrorAction SilentlyContinue
+            if (Get-Command Start-BitsTransfer -ErrorAction SilentlyContinue) {
+                Start-BitsTransfer -Source $Url -Destination $Dest -Description "Downloading $(Split-Path $Dest -Leaf)" -DisplayName "Fanvue Hub Installer"
+            }
+            else {
+                # Fallback to curl (built into Windows 10+)
+                & curl.exe -L -o $Dest $Url --progress-bar
+            }
         }
         catch {
             Write-Log "ERROR: Failed to download $Url"
