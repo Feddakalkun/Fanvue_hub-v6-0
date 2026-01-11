@@ -18,56 +18,55 @@ if (-not (Test-Path $VoicesDir)) {
     New-Item -ItemType Directory -Path $VoicesDir -Force | Out-Null
 }
 
-# Voice Pack URLs (Curated from open sources)
-# Format: Name, URL, Description
+# Voice Pack URLs (Open Speech Repository - Public Domain)
 $VoicePacks = @(
     @{
         Name        = "Emma"
-        URL         = "https://huggingface.co/datasets/Matthijs/cmu-arctic-xvectors/resolve/main/cmu_us_slt_arctic/wav/arctic_a0001.wav"
-        Transcript  = "Author of the danger trail, Philip Steels, etc."
+        URL         = "https://www.voiptroubleshooter.com/open_speech/american/OSR_us_000_0010_8k.wav"
+        Transcript  = "She had your dark suit in greasy wash water all year."
         Description = "Young American Female - Clear, professional"
     },
     @{
         Name        = "Sarah"
-        URL         = "https://huggingface.co/datasets/Matthijs/cmu-arctic-xvectors/resolve/main/cmu_us_clb_arctic/wav/arctic_a0001.wav"
-        Transcript  = "Author of the danger trail, Philip Steels, etc."
+        URL         = "https://www.voiptroubleshooter.com/open_speech/american/OSR_us_000_0011_8k.wav"
+        Transcript  = "Don't ask me to carry an oily rag like that."
         Description = "Mature American Female - Warm, friendly"
     },
     @{
         Name        = "Alex"
-        URL         = "https://huggingface.co/datasets/Matthijs/cmu-arctic-xvectors/resolve/main/cmu_us_bdl_arctic/wav/arctic_a0001.wav"
-        Transcript  = "Author of the danger trail, Philip Steels, etc."
+        URL         = "https://www.voiptroubleshooter.com/open_speech/american/OSR_us_000_0012_8k.wav"
+        Transcript  = "The young prince became king heir."
         Description = "Young American Male - Energetic, clear"
     },
     @{
         Name        = "James"
-        URL         = "https://huggingface.co/datasets/Matthijs/cmu-arctic-xvectors/resolve/main/cmu_us_rms_arctic/wav/arctic_a0001.wav"
-        Transcript  = "Author of the danger trail, Philip Steels, etc."
+        URL         = "https://www.voiptroubleshooter.com/open_speech/american/OSR_us_000_0013_8k.wav"
+        Transcript  = "The lake sparkled in the red hot sun."
         Description = "Deep American Male - Authoritative, smooth"
     },
     @{
         Name        = "Lily"
-        URL         = "https://huggingface.co/datasets/Matthijs/cmu-arctic-xvectors/resolve/main/cmu_us_fem_arctic/wav/arctic_a0001.wav"
-        Transcript  = "Author of the danger trail, Philip Steels, etc."
-        Description = "British Female - Elegant, articulate"
+        URL         = "https://www.voiptroubleshooter.com/open_speech/american/OSR_us_000_0014_8k.wav"
+        Transcript  = "Bring your best compass to the third class."
+        Description = "Professional Female - Elegant, articulate"
     },
     @{
         Name        = "Sophie"
-        URL         = "https://huggingface.co/datasets/anton-l/common_voice_12_0-fr/resolve/main/audio/test/00/common_voice_fr_19917699.mp3"
-        Transcript  = "Bonjour, comment allez-vous?"
-        Description = "French Female - Soft, romantic"
+        URL         = "https://www.voiptroubleshooter.com/open_speech/american/OSR_us_000_0015_8k.wav"
+        Transcript  = "They took their kids from the public school."
+        Description = "Soft Female - Gentle, expressive"
     },
     @{
         Name        = "Lucas"
-        URL         = "https://huggingface.co/datasets/mozilla-foundation/common_voice_11_0/resolve/main/audio/de/test/common_voice_de_19897199.mp3"
-        Transcript  = "Guten Tag, wie geht es Ihnen?"
-        Description = "German Male - Professional, clear"
+        URL         = "https://www.voiptroubleshooter.com/open_speech/american/OSR_us_000_0016_8k.wav"
+        Transcript  = "The latch on the back gate needed a nail."
+        Description = "Professional Male - Clear, confident"
     },
     @{
         Name        = "Aria"
-        URL         = "https://huggingface.co/datasets/mozilla-foundation/common_voice_11_0/resolve/main/audio/it/test/common_voice_it_19878923.mp3"
-        Transcript  = "Ciao bella, come stai?"
-        Description = "Italian Female - Expressive, melodic"
+        URL         = "https://www.voiptroubleshooter.com/open_speech/american/OSR_us_000_0017_8k.wav"
+        Transcript  = "March the tired soldiers into the compound."
+        Description = "Melodic Female - Expressive, warm"
     },
     @{
         Name        = "Default"
@@ -107,8 +106,27 @@ foreach ($voice in $VoicePacks) {
     try {
         Write-Host "[DOWN] $voiceName - $($voice.Description)" -ForegroundColor Cyan
         
-        # Download audio file
-        Invoke-WebRequest -Uri $voice.URL -OutFile $audioFile -UseBasicParsing
+        # Download audio file with retry logic
+        $maxRetries = 3
+        $retryCount = 0
+        $success = $false
+        
+        while (-not $success -and $retryCount -lt $maxRetries) {
+            try {
+                Invoke-WebRequest -Uri $voice.URL -OutFile $audioFile -UseBasicParsing -TimeoutSec 30
+                $success = $true
+            }
+            catch {
+                $retryCount++
+                if ($retryCount -lt $maxRetries) {
+                    Write-Host "  Retry $retryCount/$maxRetries..." -ForegroundColor Yellow
+                    Start-Sleep -Seconds 2
+                }
+                else {
+                    throw
+                }
+            }
+        }
         
         # Save transcript
         Set-Content -Path $txtFile -Value $voice.Transcript -Encoding UTF8
@@ -122,6 +140,11 @@ foreach ($voice in $VoicePacks) {
     catch {
         Write-Host "[FAIL] $voiceName - $($_.Exception.Message)" -ForegroundColor Red
         $Failed++
+        
+        # Clean up partial download
+        if (Test-Path $audioFile) {
+            Remove-Item $audioFile -Force
+        }
     }
 }
 
@@ -131,7 +154,12 @@ Write-Host "  Voice Pack Installation Complete"
 Write-Host "============================================================================"
 Write-Host "Downloaded: $Downloaded voices"
 Write-Host "Failed: $Failed voices"
-Write-Host "Total Available: $($Downloaded + (Get-ChildItem $VoicesDir -Directory | Measure-Object).Count) voices"
+Write-Host "Total Available: $((Get-ChildItem $VoicesDir -Directory -ErrorAction SilentlyContinue | Measure-Object).Count) voices"
 Write-Host ""
 Write-Host "Voices installed in: $VoicesDir"
 Write-Host ""
+
+if ($Failed -gt 0 -and $Downloaded -eq 0) {
+    Write-Host "[WARNING] All downloads failed. Check your internet connection." -ForegroundColor Red
+    Write-Host "You can retry by running download-voices.bat again." -ForegroundColor Yellow
+}
