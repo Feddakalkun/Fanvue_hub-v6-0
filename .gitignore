@@ -18,5 +18,6 @@ fanvue-hub/prisma/dev.db-journal
 # === LOGS & TEMP ===
 logs/
 tmp/
+troubleshoot/
 .DS_Store
 *.log
