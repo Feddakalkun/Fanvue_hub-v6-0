@@ -582,8 +582,14 @@ if (Test-Path $LegacyBackup) {
     Write-Log "Legacy backup removed."
 }
 
-# 10. Installation Complete
-# Note: Fanvue Hub, Ollama, and VoxCPM will be auto-installed by run.bat on first launch
+# 10. Install All Components
+Write-Log \"`n==========================================\"
+Write-Log \" Installing Ecosystem Components\"
+Write-Log \"==========================================\"
+
+Install-VoxCPM
+Install-Ollama
+Install-FanvueHub
 
 # 10.5. Install Voice Samples
 Write-Log "`n[Voice Pack] Installing TTS voice samples..."
