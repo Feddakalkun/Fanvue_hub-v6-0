@@ -2,10 +2,10 @@
   "3": {
     "inputs": {
       "seed": 527727666125350,
-      "steps": 8,
-      "cfg": 1,
-      "sampler_name": "euler",
-      "scheduler": "simple",
+      "steps": 20,
+      "cfg": 4,
+      "sampler_name": "euler_ancestral",
+      "scheduler": "normal",
       "denoise": 1,
       "model": [
         "11",
