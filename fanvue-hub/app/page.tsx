@@ -1,8 +1,44 @@
 'use client';
 
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
 export default function LandingPage() {
+    const [comfyReady, setComfyReady] = useState(false);
+    const [statusMessage, setStatusMessage] = useState('Initializing...');
+
+    useEffect(() => {
+        let attempts = 0;
+        const maxAttempts = 60; // 60 seconds max wait
+
+        const checkComfyUI = async () => {
+            try {
+                const res = await fetch('http://localhost:8188/system_stats', {
+                    method: 'GET',
+                    cache: 'no-store'
+                });
+
+                if (res.ok) {
+                    setComfyReady(true);
+                    setStatusMessage('Ready');
+                    return true;
+                }
+            } catch (e) {
+                // ComfyUI not ready yet
+            }
+
+            attempts++;
+            if (attempts < maxAttempts) {
+                setStatusMessage(`Loading ComfyUI... (${attempts}s)`);
+                setTimeout(checkComfyUI, 1000);
+            } else {
+                setStatusMessage('ComfyUI timeout - refresh page');
+            }
+        };
+
+        checkComfyUI();
+    }, []);
+
     return (
         <main style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden', background: '#000', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
 
@@ -19,14 +55,14 @@ export default function LandingPage() {
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                    opacity: 0.6, // Faded effect
-                    filter: 'grayscale(100%) contrast(1.2)' // Cinematic look? Or natural? User said "faded black".
+                    opacity: 0.6,
+                    filter: 'grayscale(100%) contrast(1.2)'
                 }}
             >
                 <source src="/bg.mp4" type="video/mp4" />
             </video>
 
-            {/* Overlay Gradient for Text Readability */}
+            {/* Overlay Gradient */}
             <div style={{
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                 background: 'radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%)',
@@ -78,36 +114,88 @@ export default function LandingPage() {
                     <div style={{ width: '100%', height: '2px', background: 'linear-gradient(90deg, transparent, #fff, transparent)', opacity: 0.5 }} />
                 </div>
 
+                {/* Status Indicator */}
+                {!comfyReady && (
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '12px'
+                    }}>
+                        <div style={{
+                            width: '40px',
+                            height: '40px',
+                            border: '3px solid rgba(255,255,255,0.2)',
+                            borderTop: '3px solid white',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite'
+                        }} />
+                        <style>{`
+                            @keyframes spin {
+                                0% { transform: rotate(0deg); }
+                                100% { transform: rotate(360deg); }
+                            }
+                        `}</style>
+                        <p style={{
+                            fontSize: '12px',
+                            color: '#999',
+                            letterSpacing: '0.2em',
+                            textTransform: 'uppercase'
+                        }}>
+                            {statusMessage}
+                        </p>
+                    </div>
+                )}
+
                 {/* CTA Button */}
-                <Link href="/characters">
+                {comfyReady ? (
+                    <Link href="/characters">
+                        <button style={{
+                            marginTop: '40px',
+                            padding: '16px 48px',
+                            background: 'transparent',
+                            border: '1px solid rgba(255,255,255,0.3)',
+                            color: 'white',
+                            fontSize: '14px',
+                            letterSpacing: '0.2em',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
+                            backdropFilter: 'blur(10px)',
+                            borderRadius: '2px'
+                        }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'white';
+                                e.currentTarget.style.color = 'black';
+                                e.currentTarget.style.boxShadow = '0 0 30px rgba(255,255,255,0.3)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.color = 'white';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
+                        >
+                            Enter Studio
+                        </button>
+                    </Link>
+                ) : (
                     <button style={{
                         marginTop: '40px',
                         padding: '16px 48px',
                         background: 'transparent',
-                        border: '1px solid rgba(255,255,255,0.3)',
-                        color: 'white',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        color: '#666',
                         fontSize: '14px',
                         letterSpacing: '0.2em',
                         textTransform: 'uppercase',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
+                        cursor: 'not-allowed',
                         backdropFilter: 'blur(10px)',
-                        borderRadius: '2px'
-                    }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'white';
-                            e.currentTarget.style.color = 'black';
-                            e.currentTarget.style.boxShadow = '0 0 30px rgba(255,255,255,0.3)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.color = 'white';
-                            e.currentTarget.style.boxShadow = 'none';
-                        }}
-                    >
+                        borderRadius: '2px',
+                        opacity: 0.5
+                    }}>
                         Enter Studio
                     </button>
-                </Link>
+                )}
 
             </div>
 
