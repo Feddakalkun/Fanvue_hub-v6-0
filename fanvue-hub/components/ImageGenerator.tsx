@@ -128,8 +128,27 @@ export default function ImageGenerator({
     const [isPosting, setIsPosting] = useState<string | null>(null);
 
     const handlePostToFanvue = async (imageUrl: string) => {
-        const caption = prompt || "New generation ✨";
-        if (!confirm(`Post this image to Fanvue with caption: "${caption}"?`)) return;
+        // Generate a natural caption instead of using the technical prompt
+        const captions = [
+            "Just vibing ✨",
+            "Feeling cute today 💕",
+            "New post for you 😊",
+            "Hey loves! 💖",
+            "Enjoying my day ☀️",
+            "Mood 💫",
+            "Good vibes only ✌️",
+            "Living my best life 🌟",
+            "Hope you enjoy this one 😘",
+            "For my favorites 💝",
+            "Catching some sun ☀️",
+            "Felt cute, might delete later 🙈",
+            "New content alert! 🔔",
+            "Sweet moments 🍃",
+            "Just me being me 💁‍♀️"
+        ];
+        const randomCaption = captions[Math.floor(Math.random() * captions.length)];
+
+        if (!confirm(`Post this image to Fanvue with caption: "${randomCaption}"?`)) return;
 
         setIsPosting(imageUrl);
         try {
@@ -138,7 +157,7 @@ export default function ImageGenerator({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     imageUrl,
-                    caption,
+                    caption: randomCaption,
                     isSubscriberOnly: false
                 }),
             });
