@@ -81,7 +81,7 @@ export default function CharacterStudio() {
 
             {/* Stepper */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '60px', gap: '20px' }}>
-                {['Identity', 'Appearance', 'Personality', 'Voice', 'Review'].map((label, idx) => {
+                {['Appearance', 'Identity', 'Personality', 'Voice', 'Review'].map((label, idx) => {
                     const stepNum = idx + 1;
                     const isActive = step === stepNum;
                     const isCompleted = step > stepNum;
@@ -109,34 +109,129 @@ export default function CharacterStudio() {
 
                     {step === 1 && (
                         <div className="animate-fade-in">
-                            <h2 style={{ fontSize: '20px', fontWeight: '400', marginBottom: '24px', borderBottom: '1px solid #333', paddingBottom: '12px' }}>Basic Identity</h2>
+                            <h2 style={{ fontSize: '24px', fontWeight: '300', marginBottom: '8px', letterSpacing: '-0.02em' }}>Design Your Persona</h2>
+                            <p style={{ color: '#666', fontSize: '14px', marginBottom: '32px' }}>Start by defining the visual appearance. This will generate your base model prompt.</p>
 
-                            <div style={{ display: 'grid', gap: '20px' }}>
+                            <div style={{ display: 'grid', gap: '40px' }}>
+
+                                {/* Body Type - Visual Cards */}
                                 <div>
-                                    <label style={labelStyle}>Name</label>
-                                    <input style={inputStyle} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Eve" />
-                                </div>
-                                <div>
-                                    <label style={labelStyle}>Handle</label>
-                                    <input style={inputStyle} value={formData.handle} onChange={e => setFormData({ ...formData, handle: e.target.value })} placeholder="@eve_ai" />
-                                </div>
-                                <div>
-                                    <label style={labelStyle}>Bio</label>
-                                    <textarea style={inputStyle} rows={4} value={formData.bio} onChange={e => setFormData({ ...formData, bio: e.target.value })} placeholder="Short backstory..." />
+                                    <label style={labelStyle}>Body Type</label>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px', marginTop: '12px' }}>
+                                        {bodyTypes.map(type => (
+                                            <button
+                                                key={type}
+                                                onClick={() => setFormData({ ...formData, bodyType: type })}
+                                                style={{
+                                                    padding: '20px 12px',
+                                                    background: formData.bodyType === type ? '#fff' : '#111',
+                                                    color: formData.bodyType === type ? '#000' : '#888',
+                                                    border: formData.bodyType === type ? '1px solid #fff' : '1px solid #333',
+                                                    borderRadius: '4px',
+                                                    fontSize: '13px',
+                                                    cursor: 'pointer',
+                                                    textAlign: 'center',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                <div style={{ fontSize: '24px', marginBottom: '8px', opacity: formData.bodyType === type ? 1 : 0.5 }}>
+                                                    {type.includes('Curvy') ? '🎱' : type.includes('Slim') ? '🧣' : type.includes('Athletic') ? '💪' : '✨'}
+                                                </div>
+                                                {type}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
 
-                                <div style={{ background: 'rgba(56, 189, 248, 0.05)', padding: '20px', borderRadius: '4px', border: '1px solid rgba(56, 189, 248, 0.1)', marginTop: '20px' }}>
-                                    <h3 style={{ fontSize: '14px', color: '#38bdf8', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Fanvue Integration</h3>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                        <div>
-                                            <label style={labelStyle}>Profile ID</label>
-                                            <input style={inputStyle} value={formData.fanvueProfileId} onChange={e => setFormData({ ...formData, fanvueProfileId: e.target.value })} />
-                                        </div>
-                                        <div>
-                                            <label style={labelStyle}>Secret Token</label>
-                                            <input style={inputStyle} type="password" value={formData.fanvueSecret} onChange={e => setFormData({ ...formData, fanvueSecret: e.target.value })} />
+                                {/* Traits Grid */}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                                    <div>
+                                        <label style={labelStyle}>Hair Color</label>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                                            {hairColors.map(c => (
+                                                <button
+                                                    key={c}
+                                                    onClick={() => setFormData({ ...formData, hairColor: c })}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        background: formData.hairColor === c ? '#333' : '#111',
+                                                        color: '#fff',
+                                                        border: formData.hairColor === c ? '1px solid #fff' : '1px solid #333',
+                                                        borderRadius: '20px',
+                                                        fontSize: '12px',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    <span style={{
+                                                        display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', marginRight: '8px',
+                                                        background: c === 'Blonde' ? '#eab308' : c === 'Red' ? '#ef4444' : c === 'Black' ? '#000' : c === 'Brunette' ? '#78350f' : c === 'Pink' ? '#f472b6' : '#fff'
+                                                    }} />
+                                                    {c}
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
+                                    <div>
+                                        <label style={labelStyle}>Eye Color</label>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                                            {eyeColors.map(c => (
+                                                <button
+                                                    key={c}
+                                                    onClick={() => setFormData({ ...formData, eyeColor: c })}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        background: formData.eyeColor === c ? '#333' : '#111',
+                                                        color: '#fff',
+                                                        border: formData.eyeColor === c ? '1px solid #fff' : '1px solid #333',
+                                                        borderRadius: '20px',
+                                                        fontSize: '12px',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    <span style={{
+                                                        display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', marginRight: '8px',
+                                                        background: c.toLowerCase()
+                                                    }} />
+                                                    {c}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Age Slider */}
+                                <div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                                        <label style={labelStyle}>Age Range</label>
+                                        <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>{formData.age} years old</span>
+                                    </div>
+                                    <input
+                                        type="range" min="18" max="45" value={formData.age}
+                                        onChange={e => setFormData({ ...formData, age: parseInt(e.target.value) })}
+                                        style={{ width: '100%', accentColor: '#fff', cursor: 'pointer' }}
+                                    />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '10px', color: '#444' }}>
+                                        <span>18</span>
+                                        <span>25</span>
+                                        <span>35</span>
+                                        <span>45+</span>
+                                    </div>
+                                </div>
+
+                                {/* Generated Prompt Preview */}
+                                <div style={{ padding: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span style={{ fontSize: '16px' }}>✨</span>
+                                            <label style={{ ...labelStyle, marginBottom: 0, color: '#fff' }}>Appearance Prompt</label>
+                                        </div>
+                                        <button onClick={generateAppearancePrompt} style={{ fontSize: '11px', padding: '6px 12px', background: '#333', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                            ↻ Update Prompt
+                                        </button>
+                                    </div>
+                                    <p style={{ fontSize: '14px', color: '#aaa', lineHeight: '1.6', fontFamily: 'monospace' }}>
+                                        {formData.avatarPrompt || "Select your traits above and click 'Update Prompt' to see the magic..."}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -144,70 +239,40 @@ export default function CharacterStudio() {
 
                     {step === 2 && (
                         <div className="animate-fade-in">
-                            <h2 style={{ fontSize: '20px', fontWeight: '400', marginBottom: '24px', borderBottom: '1px solid #333', paddingBottom: '12px' }}>Visual Appearance</h2>
+                            <h2 style={{ fontSize: '24px', fontWeight: '300', marginBottom: '8px', letterSpacing: '-0.02em' }}>Identity & Backstory</h2>
+                            <p style={{ color: '#666', fontSize: '14px', marginBottom: '32px' }}>Give your persona a name and handle to bring her to life.</p>
 
-                            <div style={{ display: 'grid', gap: '32px' }}>
-
-                                {/* Age Slider */}
+                            <div style={{ display: 'grid', gap: '24px' }}>
                                 <div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                        <label style={labelStyle}>Age</label>
-                                        <span style={{ color: '#fff' }}>{formData.age} years</span>
-                                    </div>
-                                    <input type="range" min="18" max="40" value={formData.age} onChange={e => setFormData({ ...formData, age: parseInt(e.target.value) })} style={{ width: '100%' }} />
+                                    <label style={labelStyle}>Name</label>
+                                    <input style={inputStyle} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Eve" autoFocus />
                                 </div>
-
-                                {/* Body Type Selection */}
                                 <div>
-                                    <label style={labelStyle}>Body Type</label>
-                                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
-                                        {bodyTypes.map(type => (
-                                            <button
-                                                key={type}
-                                                onClick={() => setFormData({ ...formData, bodyType: type })}
-                                                style={{
-                                                    padding: '8px 16px',
-                                                    background: formData.bodyType === type ? '#fff' : '#111',
-                                                    color: formData.bodyType === type ? '#000' : '#888',
-                                                    border: '1px solid #333',
-                                                    borderRadius: '20px',
-                                                    fontSize: '12px',
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                {type}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    <label style={labelStyle}>Handle</label>
+                                    <input style={inputStyle} value={formData.handle} onChange={e => setFormData({ ...formData, handle: e.target.value })} placeholder="@eve_ai" />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Bio / Backstory</label>
+                                    <textarea style={inputStyle} rows={4} value={formData.bio} onChange={e => setFormData({ ...formData, bio: e.target.value })} placeholder="Write a short backstory or personality description..." />
                                 </div>
 
-                                {/* Hair & Eyes Grid */}
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                                    <div>
-                                        <label style={labelStyle}>Hair Color</label>
-                                        <select style={inputStyle} value={formData.hairColor} onChange={e => setFormData({ ...formData, hairColor: e.target.value })}>
-                                            {hairColors.map(c => <option key={c} value={c}>{c}</option>)}
-                                        </select>
+                                <div style={{ background: 'rgba(56, 189, 248, 0.05)', padding: '24px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.1)', marginTop: '12px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#38bdf8', boxShadow: '0 0 10px #38bdf8' }} />
+                                        <h3 style={{ fontSize: '13px', fontWeight: '600', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Fanvue Connect</h3>
                                     </div>
-                                    <div>
-                                        <label style={labelStyle}>Eye Color</label>
-                                        <select style={inputStyle} value={formData.eyeColor} onChange={e => setFormData({ ...formData, eyeColor: e.target.value })}>
-                                            {eyeColors.map(c => <option key={c} value={c}>{c}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
 
-                                {/* Generated Prompt Preview */}
-                                <div style={{ padding: '20px', background: '#111', borderRadius: '4px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                                        <label style={{ ...labelStyle, marginBottom: 0 }}>Generated Appearance Prompt</label>
-                                        <button onClick={generateAppearancePrompt} style={{ fontSize: '11px', color: '#38bdf8', background: 'transparent', border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}>
-                                            ↻ Regenerate
-                                        </button>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                        <div>
+                                            <label style={labelStyle}>Profile ID</label>
+                                            <input style={{ ...inputStyle, background: 'rgba(0,0,0,0.3)' }} value={formData.fanvueProfileId} onChange={e => setFormData({ ...formData, fanvueProfileId: e.target.value })} placeholder="Found in DevTools" />
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>Secret Token</label>
+                                            <input style={{ ...inputStyle, background: 'rgba(0,0,0,0.3)' }} type="password" value={formData.fanvueSecret} onChange={e => setFormData({ ...formData, fanvueSecret: e.target.value })} placeholder="Your automation token" />
+                                        </div>
                                     </div>
-                                    <p style={{ fontSize: '13px', color: '#ccc', lineHeight: '1.5', fontStyle: 'italic' }}>
-                                        {formData.avatarPrompt || "Click 'Regenerate' to create the prompt..."}
-                                    </p>
+                                    <p style={{ fontSize: '11px', color: '#38bdf8', opacity: 0.6, marginTop: '12px' }}>Optional: Connect now or configure later in settings.</p>
                                 </div>
                             </div>
                         </div>
